@@ -17,6 +17,9 @@ import { FeatureDirective } from '@shared';
           <li *feature="'wip'"><a routerLink="demos">Demos</a></li>
           <li><a routerLink="banking">Banking</a></li>
           <li><a routerLink="counter">Counter</a></li>
+          <li *feature="'book-contnet'" ? enabled : disabled>
+            <a routerLink="books">Books</a>
+          </li>
         </ul>
       </div>
     </div>
