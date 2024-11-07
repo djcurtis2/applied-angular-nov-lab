@@ -1,21 +1,35 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, Injectable } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-books',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterOutlet],
+  imports: [RouterLink, RouterOutlet, JsonPipe],
   template: `
-    <div data-testid="books-feature">
-      <div class="flex gap-4 p-4">
-        <!-- <a class="link" routerLink="ui">UI</a>
-        <a class="link" routerLink="prefs">Prefs</a> -->
-        <p>Book Content</p>
-      </div>
-      <router-outlet />
-    </div>
+    <pre>
+        <ul>
+            @for(book of books(); track book.id) {
+            <li>
+                <pre>{{ book | json }}</pre>
+            </li>
+            }
+         </ul>
+    </pre>
   `,
   styles: ``,
 })
-export class BooksComponent {}
+@Injectable()
+export class BooksComponent {
+  #client = inject(HttpClient);
+  books = toSignal(
+    this.#client
+      .get<{
+        data: { id: string; title: string; author: string; year: number }[];
+      }>('/api/books')
+      .pipe(map((res) => res.data)),
+  );
+}
